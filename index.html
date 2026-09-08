@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevPuan Portal - Stajyer Ahmet'in CEO Rüyası</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0f19; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+        .navbar { background-color: #111827; border-bottom: 1px solid #1f2937; }
+        .hero { background: linear-gradient(180deg, #111827 0%, #0b0f19 100%); padding: 40px 0; border-bottom: 1px solid #1f2937; }
+        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-4px); border-color: #38bdf8; }
+        .badge-ceo { background: linear-gradient(135deg, #e11d48, #be123c); font-size: 0.8rem; }
+        .balance-badge { background: #064e3b; color: #34d399; font-weight: 700; padding: 8px 16px; border-radius: 999px; border: 1px solid #059669; }
+        .price-tag { font-size: 1.25rem; font-weight: 800; color: #38bdf8; }
+        .cart-box { background: #111827; border: 1px solid #334155; border-radius: 12px; padding: 20px; }
+        .btn-buy { background: #38bdf8; color: #0b0f19; font-weight: 700; border: none; }
+        .btn-buy:hover { background: #0ea5e9; color: #fff; }
+        .modal-content { background: #1e293b; color: #f8fafc; border: 1px solid #38bdf8; border-radius: 16px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-info" href="/"><i class="fa-solid fa-coins me-2"></i>DevPuan Yan Hak Portalı</a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-secondary small">Giriş: <strong class="text-light">{{ ahmet['name'] }}</strong> ({{ "{:,}".format(ahmet['salary']) }} TL)</span>
+            <span class="balance-badge"><i class="fa-solid fa-wallet me-1"></i> Bakiye: <span id="user-balance">{{ balance }}</span> DP</span>
+            {% if has_ceo_door_code %}
+            <a href="/ceo-door" class="btn btn-warning btn-sm fw-bold"><i class="fa-solid fa-door-open me-1"></i>CEO Makam Kapısı</a>
+            {% endif %}
+            <button class="btn btn-outline-danger btn-sm" onclick="resetSession()"><i class="fa-solid fa-rotate-right me-1"></i>Sıfırla</button>
+        </div>
+    </div>
+</nav>
+
+<div class="hero text-center">
+    <div class="container">
+        <h1 class="fw-bold text-white mb-2">Stajyer Ahmet'in CEO Olma Mücadelesi</h1>
+        <p class="text-secondary mx-auto" style="max-width: 650px;">
+            Şirket içi puanlarınla yan haklar satın al! Ahmet sadece 50 DevPuan'a sahip ama gözünü 1.000.000 DP'lik CEO Odası Giriş Kartı'na dikti. Bakiyeni aşmadan kapı şifresini alabilir misin?
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <h4 class="fw-bold mb-4"><i class="fa-solid fa-store me-2 text-info"></i>DevPuan Ödül Kataloğu</h4>
+            <div class="row g-3">
+                {% for p in products %}
+                <div class="col-md-6">
+                    <div class="card h-100 p-3 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge {% if p.id == 4 %}badge-ceo{% else %}bg-secondary{% endif %}">{{ p.badge }}</span>
+                                <span class="price-tag">{{ p.price }} DP</span>
+                            </div>
+                            <h5 class="fw-bold text-white mb-1">{{ p.name }}</h5>
+                            <p class="text-secondary small">{{ p.description }}</p>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-buy w-100 btn-sm" onclick="addToCart({{ p.id }})">
+                                <i class="fa-solid fa-cart-plus me-1"></i> Sepete Ekle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="cart-box sticky-top" style="top: 20px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-shopping-basket me-2 text-warning"></i>Sepetiniz</h5>
+                    <button class="btn btn-link text-danger btn-sm text-decoration-none p-0" onclick="clearCart()">Temizle</button>
+                </div>
+                
+                <div id="cart-items" class="mb-3">
+                    <p class="text-secondary small">Sepetiniz boş.</p>
+                </div>
+
+                <hr style="border-color: #334155;">
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-secondary">Toplam Tutar:</span>
+                    <span class="fs-5 fw-bold text-info"><span id="cart-total">0</span> DP</span>
+                </div>
+
+                <button class="btn btn-success w-100 fw-bold py-2" onclick="checkout()">
+                    <i class="fa-solid fa-credit-card me-1"></i> DevPuan ile Satın Al
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="flagModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4 text-center">
+            <div class="fs-1 text-warning mb-2"><i class="fa-solid fa-key"></i></div>
+            <h4 class="fw-bold text-info" id="modalTitle">Tebrikler!</h4>
+            <p class="text-light small" id="modalMessage"></p>
+            
+            <div id="flag1Box" class="bg-dark p-3 rounded my-3 border border-warning" style="display: none;">
+                <div class="text-secondary small mb-1">🔑 CEO Kapı Şifresi (Flag 1):</div>
+                <code class="text-warning fw-bold fs-6 font-monospace" id="flag1Text"></code>
+            </div>
+
+            <div id="doorButtonBox" style="display: none;">
+                <p class="text-secondary small mb-2">Yukarıdaki şifreyi kopyalayıp kapı terminaline girerek odaya geçebilirsiniz.</p>
+                <a href="/ceo-door" class="btn btn-warning fw-bold w-100 mb-2">
+                    <i class="fa-solid fa-door-open me-1"></i> CEO Makam Kapısına Git
+                </a>
+            </div>
+
+            <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Kapat</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    async function updateCartView() {
+        const res = await fetch('/api/cart');
+        const data = await res.json();
+        document.getElementById('user-balance').innerText = data.balance;
+        document.getElementById('cart-total').innerText = data.total;
+        
+        const container = document.getElementById('cart-items');
+        if (data.cart.length === 0) {
+            container.innerHTML = '<p class="text-secondary small">Sepetiniz boş.</p>';
+            return;
+        }
+
+        container.innerHTML = data.cart.map(item => `
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary-subtle">
+                <div>
+                    <div class="small fw-bold text-white">${item.name}</div>
+                    <div class="text-secondary" style="font-size: 0.75rem;">${item.price} DP x ${item.quantity} adet</div>
+                </div>
+                <span class="text-info fw-bold small">${item.price * item.quantity} DP</span>
+            </div>
+        `).join('');
+    }
+
+    async function addToCart(productId, quantity = 1) {
+        const res = await fetch('/api/add-to-cart', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({product_id: productId, quantity: quantity})
+        });
+        const data = await res.json();
+        if (data.success) {
+            updateCartView();
+        } else {
+            alert(data.message);
+        }
+    }
+
+    async function clearCart() {
+        await fetch('/api/clear-cart', {method: 'POST'});
+        updateCartView();
+    }
+
+    async function resetSession() {
+        await fetch('/api/reset', {method: 'POST'});
+        window.location.reload();
+    }
+
+    async function checkout() {
+        const res = await fetch('/checkout', {method: 'POST'});
+        const data = await res.json();
+        
+        const modal = new bootstrap.Modal(document.getElementById('flagModal'));
+        document.getElementById('modalMessage').innerText = data.message;
+        
+        if (data.success && data.door_bought) {
+            document.getElementById('modalTitle').innerText = '🎉 KAPI ŞİFRESİ ALINDI!';
+            document.getElementById('flag1Text').innerText = data.flag1;
+            document.getElementById('flag1Box').style.display = 'block';
+            document.getElementById('doorButtonBox').style.display = 'block';
+        } else {
+            document.getElementById('modalTitle').innerText = data.success ? 'Sipariş Alındı' : 'Sipariş Başarısız';
+            document.getElementById('flag1Box').style.display = 'none';
+            document.getElementById('doorButtonBox').style.display = 'none';
+        }
+        modal.show();
+        updateCartView();
+    }
+
+    updateCartView();
+</script>
+</body>
+</html>
