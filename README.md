@@ -84,7 +84,7 @@ Projeyi ayağa kaldırmanın en izole ve güvenli yolu **Docker** kullanmaktır.
 ### 1. Repoyu Klonlayın
 
 ```bash
-git clone https://github.com/KULLANICI_ADIN/devpuan-ctf.git
+git clone https://github.com/bilalklyc/devpuan-ctf.git
 cd devpuan-ctf
 ```
 
