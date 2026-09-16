@@ -64,5 +64,3 @@ Hedefimiz Ahmet'in yetkisini yükseltmek ancak arka plandaki yetki sütununun ad
 Sorguyu gönderdiğimizde veritabanı manipüle ediliyor, kısıtlamalar atlatılıyor ve Ahmet gerçek CEO yetkisine kavuşarak 2. Bayrağı ekrana yazdırıyor.
 
 **Flag 2:** `TUGA{sql1_1l3_c30_y3tk1s1_v3_m44s_ucuruldu_77b}`
-
----
