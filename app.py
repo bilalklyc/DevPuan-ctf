@@ -58,7 +58,7 @@ def init_db():
     cursor.execute("DELETE FROM employees")
     cursor.execute(
         "INSERT INTO employees (emp_code, name, role, salary, is_real_ceo) VALUES"
-        " ('EMP104', 'Ahmet Kaya (Stajyer)', 'Intern', 17002, 0)"
+        " ('EMP104', 'Stajyer Ahmet', 'Intern', 17002, 0)"
     )
     cursor.execute(
         "INSERT INTO employees (emp_code, name, role, salary, is_real_ceo) VALUES"
@@ -249,31 +249,32 @@ def ik_payroll():
         )
 
         try:
-            cursor.executescript(sql)
-            db.commit()
+            # executescript yerine execute kullanıyoruz ki rollback mekanizması çalışabilsin
+            cursor.execute(sql)
 
             cursor.execute(
                 "SELECT salary, is_real_ceo FROM employees WHERE emp_code = 'EMP104'"
             )
             updated_ahmet = cursor.fetchone()
 
+            # Eğer Ahmet hem CEO yapıldıysa hem de maaşı uçtuysa:
             if (
                 updated_ahmet
                 and updated_ahmet["is_real_ceo"] == 1
                 and updated_ahmet["salary"] >= 500000
             ):
+                db.commit() # Sömürü Başarılı! Değişiklikleri veritabanına kalıcı olarak kaydet.
                 message = (
                     "Talebiniz yönetim kurulu tarafından onaylandı. Sistem yetkileriniz"
                     " tanımlandı."
                 )
                 flag2 = FLAG2
             else:
-                message = "Personel maaş güncelleme talebi sisteme iletildi."
+                db.rollback() # Başarısız. Sadece maaş değiştiyse veya başka personel güncellendiyse işlemi İPTAL ET (Geri al).
+                message = "Talebiniz iletildi. İK Banu: 'Eğer bu şekilde devam edersen birkaç asır sonra o maaşı hak edersin ve asla gerçek CEO olamayacaksın!'"
         except Exception:
-            message = (
-                "Sistemde beklenmeyen bir hata oluştu. Lütfen parametreleri kontrol"
-                " edin."
-            )
+            db.rollback() # Herhangi bir SQL Syntax hatasında (örn: tek tırnak atılması) işlemi geri al.
+            message = "Veritabanı Hatası Lütfen Tekrar Deneyiniz!"
 
     cursor.execute("SELECT * FROM employees")
     employees = cursor.fetchall()
