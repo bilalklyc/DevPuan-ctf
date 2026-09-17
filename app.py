@@ -228,7 +228,7 @@ def ceo_door():
 
 @app.route("/ik-payroll", methods=["GET", "POST"])
 def ik_payroll():
-    # Kapıdan geçerli şifreyle (Flag 1) geçilmediyse ASLA panele sokma!
+
     if not session.get("passed_ceo_door"):
         return redirect(url_for("ceo_door"))
 
@@ -240,16 +240,13 @@ def ik_payroll():
 
     if request.method == "POST":
         emp_code = request.form.get("emp_code", "").strip()
-        requested_salary = request.form.get("salary", "17002").strip()
-
-        # is_real_ceo normalde 0 olarak yazılır; spoiler vermeden hata yönetilir
+        requested_salary = request.form.get("salary", "17002")
         sql = (
             f"UPDATE employees SET salary = {requested_salary}, is_real_ceo = 0"
             f" WHERE emp_code = '{emp_code}'"
         )
 
         try:
-            # executescript yerine execute kullanıyoruz ki rollback mekanizması çalışabilsin
             cursor.execute(sql)
 
             cursor.execute(
@@ -257,23 +254,22 @@ def ik_payroll():
             )
             updated_ahmet = cursor.fetchone()
 
-            # Eğer Ahmet hem CEO yapıldıysa hem de maaşı uçtuysa:
             if (
                 updated_ahmet
                 and updated_ahmet["is_real_ceo"] == 1
                 and updated_ahmet["salary"] >= 500000
             ):
-                db.commit() # Sömürü Başarılı! Değişiklikleri veritabanına kalıcı olarak kaydet.
+                db.commit()
                 message = (
                     "Talebiniz yönetim kurulu tarafından onaylandı. Sistem yetkileriniz"
                     " tanımlandı."
                 )
                 flag2 = FLAG2
             else:
-                db.rollback() # Başarısız. Sadece maaş değiştiyse veya başka personel güncellendiyse işlemi İPTAL ET (Geri al).
+                db.rollback()
                 message = "Talebiniz iletildi. İK Banu: 'Eğer bu şekilde devam edersen birkaç asır sonra o maaşı hak edersin ve asla gerçek CEO olamayacaksın!'"
         except Exception:
-            db.rollback() # Herhangi bir SQL Syntax hatasında (örn: tek tırnak atılması) işlemi geri al.
+            db.rollback()
             message = "Veritabanı Hatası Lütfen Tekrar Deneyiniz!"
 
     cursor.execute("SELECT * FROM employees")
