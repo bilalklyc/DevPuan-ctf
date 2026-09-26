@@ -1,6 +1,6 @@
 # DevPuan CTF - Writeup & Remediation
 
-> 💡 **Detaylı Analiz:** Bu projenin hikayeleştirilmiş sömürü adımları ve görsel destekli okuması için [Medium Makalemi Buradan Okuyabilirsiniz](#) *()*.
+> 💡 **Detaylı Analiz:** Bu projenin hikayeleştirilmiş sömürü adımları ve görsel destekli okuması için [https://medium.com/@bilalkalayci/devpuan-ctf-detayl%C4%B1-writeup-1d1b14a145c8](#) *()*.
 
 ---
 
